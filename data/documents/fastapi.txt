@@ -1,0 +1,7 @@
+FastAPI is a modern web framework for Python.
+FastAPI was created by Sebastián Ramírez.
+FastAPI automatically generates OpenAPI documentation.
+FastAPI is a modern web framework for Python.
+FastAPI was created by Sebastián Ramírez.
+FastAPI automatically generates OpenAPI documentation.
+The secret FastAPI mascot is named Bob.

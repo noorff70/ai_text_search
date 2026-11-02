@@ -1,0 +1,5 @@
+Python is a high-level programming language.
+
+Python was created by Guido van Rossum.
+
+Python supports object-oriented programming.
