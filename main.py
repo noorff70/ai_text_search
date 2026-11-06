@@ -3,21 +3,26 @@ from fastapi import FastAPI, Depends
 from models.chat_models import ChatRequest, ChatResponse, UserMessageRequest
 from repositories.conversation_repository import ConversationRepository
 from repositories.document_repository import DocumentRepository
+from repositories.vector_repository import VectorRepository
 from services.chat_service import ChatService
 from services.embedding_service import EmbeddingService
+from services.llm_service import LlmService
 from services.ollama_service import OllamaService
+from services.vector_rag_service import VectorRagService
 from fastapi.responses import StreamingResponse
 
 from services.rag_service import RagService
-
-# from repositories.conversation_repository import (
-#     ConversationRepository
-# )
+from services.vector_search_service import VectorSearchService
 
 app = FastAPI()
 
 def get_repository():
     return ConversationRepository(
+        "data/chatbot.db"
+    )
+
+def get_vector_repository():
+    return VectorRepository(
         "data/chatbot.db"
     )
 
@@ -33,14 +38,53 @@ def get_document_repository():
 def get_rag_service( document_repository: DocumentRepository = Depends(get_document_repository)):
     return RagService(document_repository)
 
+def get_embedding_service():
+    return EmbeddingService(
+        model="nomic-embed-text"
+    )
 
-def get_chat_service(repository : ConversationRepository = Depends(get_repository), ollama_service : OllamaService = Depends(get_ollama_service), rag_service: RagService= Depends(get_rag_service)):
+def get_vector_search_service(
+    embedding_service: EmbeddingService = Depends(
+        get_embedding_service
+    ),
+    vector_repository: VectorRepository = Depends(
+        get_vector_repository
+        )
+    ):
+    return VectorSearchService(
+        embedding_service=embedding_service,
+        vector_repository=vector_repository
+    )
 
-     
+def get_llm_service():
+    return LlmService(
+        model="llama3.2"
+    )
+
+def get_vector_rag_service(
+    search_service: VectorSearchService = Depends(
+        get_vector_search_service
+    ),
+    llm_service: LlmService = Depends(
+        get_llm_service
+    )
+):
+    return VectorRagService(
+        search_service=search_service,
+        llm_service=llm_service
+    )
+
+
+def get_chat_service(repository : ConversationRepository = Depends(get_repository), 
+                     ollama_service : OllamaService = Depends(get_ollama_service), 
+                     rag_service: RagService= Depends(get_rag_service),
+                     vector_rag_service:VectorRagService= Depends(get_vector_rag_service)):
+
     return ChatService(
         repository = repository,
         ollama_service = ollama_service,
-        rag_service = rag_service
+        rag_service = rag_service,
+        vector_rag_service = vector_rag_service
     )
 
 @app.post ("/chat_with_ollama_directly", response_model=ChatResponse)
@@ -56,6 +100,14 @@ def chat_endpoint(request: ChatRequest,  chat_service: ChatService = Depends(get
 @app.post("/chat_with_rag")
 def chat_with_rag(request: ChatRequest, service: ChatService= Depends(get_chat_service)):
     answer = service.ask(request.message)
+    return {"answer": answer}
+
+@app.post("/chat_with_vector_rag")
+def chat_with_vector_rag(
+    request: ChatRequest,
+    service: ChatService = Depends(get_chat_service)
+):
+    answer = service.ask_vector(request.message)
     return {"answer": answer}
 
 

@@ -522,4 +522,14 @@ model calls isolated behind services
 
 That's very close to the same separation you'd see in a production application.
 
+This is dependency injection
+ChatService
+├── OllamaService
+├── RagService
+└── VectorRagService
+    ├── VectorSearchService
+    │   ├── EmbeddingService
+    │   └── VectorRepository
+    └── LlmService
+
 

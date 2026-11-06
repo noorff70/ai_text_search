@@ -1,13 +1,18 @@
 from repositories.conversation_repository import ConversationRepository
 from services.ollama_service import OllamaService
 from services.rag_service import RagService
+from services.vector_rag_service import VectorRagService
 
 
 class ChatService:
-    def __init__(self, repository: ConversationRepository, ollama_service: OllamaService, rag_service: RagService):
+    def __init__(self, repository: ConversationRepository, 
+                 ollama_service: OllamaService, 
+                 rag_service: RagService,
+                 vector_rag_service: VectorRagService):
         self._repository = repository
         self._ollama_service = ollama_service
         self._rag_service = rag_service
+        self._vector_rag_service = vector_rag_service
 
     def chat (self, conversation_id: int, user_message:str)-> str:
         
@@ -93,3 +98,8 @@ ANSWER:
                 }
             ]
         )
+    # This asks vector rag service
+    def ask_vector(self, question: str):
+            return self._vector_rag_service.ask(
+                question
+            )

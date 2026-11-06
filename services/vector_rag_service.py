@@ -26,10 +26,10 @@ class VectorRagService:
         )
 
         # TODO: temporarily adding for testing.
-        for result in search_results:
-            print(f"\nScore: {result.similarity:.4f}")
-            print(f"Document: "f"{result.chunk.source_document}")
-            print(result.chunk.content)
+        # for result in search_results:
+        #     print(f"\nScore: {result.similarity:.4f}")
+        #     print(f"Document: "f"{result.chunk.source_document}")
+        #     print(result.chunk.content)
 
         context = "\n\n".join(
             result.chunk.content
