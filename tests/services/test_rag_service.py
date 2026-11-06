@@ -16,3 +16,4 @@ def test_retrieved_documents_have_score():
         "Who created FastAPI?"
     )
     assert results[0]["score"] > 0
+    

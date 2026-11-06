@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from dataclasses import dataclass
 
 class Message(BaseModel):
     role: str
@@ -14,4 +15,16 @@ class ChatResponse(BaseModel):
 
 class UserMessageRequest(BaseModel):
     message: str
+
+@dataclass
+class DocumentChunk:
+    id: int | None
+    source_document: str
+    content: str
+    embedding: list[float]
+
+@dataclass
+class SearchResult:
+    chunk: DocumentChunk
+    similarity: float
 

@@ -24,6 +24,15 @@ CREATE TABLE IF NOT EXISTS message (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS document_chunks(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_document TEXT NOT NULL,
+    content TEXT NOT NULL,
+    embedding TEXT NOT NULL
+)
+""")
+
 conn.commit()
 conn.close()
 

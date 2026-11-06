@@ -1,5 +1,6 @@
 class RagService:
 
+    # This is for keyword search
     def __init__(self, document_repository):
         self._repository = document_repository
 

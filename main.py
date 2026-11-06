@@ -4,6 +4,7 @@ from models.chat_models import ChatRequest, ChatResponse, UserMessageRequest
 from repositories.conversation_repository import ConversationRepository
 from repositories.document_repository import DocumentRepository
 from services.chat_service import ChatService
+from services.embedding_service import EmbeddingService
 from services.ollama_service import OllamaService
 from fastapi.responses import StreamingResponse
 
@@ -22,6 +23,9 @@ def get_repository():
 
 def get_ollama_service():
     return OllamaService("llama3.2")
+
+def get_embedding_service():
+    return EmbeddingService("nomic-embed-text")
 
 def get_document_repository():
     return DocumentRepository()

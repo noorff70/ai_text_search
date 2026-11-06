@@ -278,4 +278,248 @@ http://localhost:8000/docs#/default/chat_with_rag_chat_with_rag_post
 embedding:
 docker exec -it ollama ollama pull nomic-embed-text
 
+FastAPI
+   ↓
+Chat API
+   ↓
+ChatService
+   ↓
+EmbeddingService
+   ↓
+Local Vector Store (memory)
+--------------
+User Question
+      ↓
+EmbeddingService
+      ↓
+Find Relevant Chunks
+      ↓
+OllamaService
+      ↓
+Generate Final Answer
+------------------------
+We have created vector_utils.py and embedding_service.py
+
+The next step is 
+Question
+   ↓
+Question Embedding
+   ↓
+Compare With Document Embeddings
+   ↓
+Choose Best Document
+
+Now create a semantic_search_text.py that will do some semantic test as follows:
+Read fastapi.txt -> Read python.txt -> Generate embeddings for both -> Generate an embedding for a question -> ->Calculate cosine similarity -> Print scores
+
+and do the test:
+PS D:\dev\python_projects\ai_1> python -m tests.embedding.semantic_search_test
+
+We have done so far:
+✅ Chat endpoint
+✅ Ollama integration
+✅ Basic RAG
+✅ Document loading
+✅ EmbeddingService
+✅ Vector generation
+✅ Cosine similarity
+✅ Semantic search test
+
+And the next milestone:
+Semantic search test
+        ↓
+Retrieve winning document
+        ↓
+Move retrieval logic into ChatService
+        ↓
+Replace keyword search
+
+We changed the test so that we can return the best document as follows:
+Question -> Embedding -> Find Best Document -> Return Document Content
+
+------
+Now we are doing chunking, and the flow is:
+Document -> Chunks-> Embeddings -> Vector Store -> Similarity Search -> Top 3 Chunks -> Ollama
+
+Currently we are doing as follows:
+Question -> Generate embedding -> Compare against documents
+
+Next objective:
+Documents -> Chunk -> Embed once -> Store vectors in SQLite -> Query embedding -> Similarity search
+
+------------
+So far completed:
+ ✅ Ollama installed and running
+ ✅ nomic-embed-text working
+ ✅ Embedding service created
+ ✅ Cosine similarity implemented
+ ✅ Document chunking implemented
+ ✅ SQLite vector table created
+ ✅ Chunks stored with embeddings
+ ✅ Verified data is being persisted
+ 
+ fastapi.txt
+    ↓
+Chunking
+    ↓
+Embeddings (Ollama)
+    ↓
+SQLite
+
+Continue my Ollama RAG project
+
+====================================
+
+Responsibilities:
+EmbeddingService
+    Generates embeddings
+    Computes similarity
+
+VectorRepository
+    Saves chunks
+    Loads chunks
+
+VectorSearchService
+    Orchestrates search
+	
+Created a test:
+(venv) PS D:\dev\python_projects\ai_1> python -m tests.services.test_vector_search_service
+
+Now test this: (End-toEnd Test)
+python -m tests.services.test_vector_rag_service
+This test provided the following:
+Document
+    ↓
+Chunking
+    ↓
+Embeddings
+    ↓
+SQLite
+    ↓
+Vector Search
+    ↓
+Context Assembly
+    ↓
+llama3.2
+    ↓
+Answer
+
+Current Project Status
+
+Completed
+
+Ollama setup
+Embedding service
+Chunking
+SQLite vector storage
+Cosine similarity
+Vector repository
+Vector search service
+LLM service
+Vector RAG service
+End-to-end testing
+
+Remaining
+
+Better prompts
+RagResponse model
+Source citations
+Retrieval debugging/logging
+FastAPI /ask endpoint
+Conversation history (optional)
+Metadata filtering (optional)
+Streaming responses (optional)
+
+===========================================
+The typical flow is this:
+Document
+   ↓
+load_document()
+   ↓
+chunk_document()
+   ↓
+generate_embeddings()
+   ↓
+SAVE chunks + embeddings to SQLite
+   ↓
+----------------------------------
+Later...
+----------------------------------
+User Question
+   ↓
+VectorSearchService
+   ↓
+Load saved chunks + embeddings
+   ↓
+Similarity Search
+   ↓
+Return matching chunks
+   ↓
+VectorRAGService
+   ↓
+Build prompt
+   ↓
+Ollama
+   ↓
+Answer
+
+There are two flows:
+Flow 1: Ingestion Pipeline (runs once per document)
+
+This is the pipeline that populates the database.
+
+Plain Text
+PDF/TXT
+↓
+load_document()
+↓
+chunk_document()
+↓
+EmbeddingService.embed(chunk)
+↓
+VectorRepository.save_chunk()
+↓
+document_chunks table
+
+Flow 2: Query Pipeline (runs for every user question)
+
+Your vector_search_service.py belongs entirely to this flow.
+
+Plain Text
+Question
+↓
+EmbeddingService.embed(question)
+↓
+VectorRepository.get_all_chunks()
+↓
+cosine_similarity()
+↓
+Top K Results
+
+Flow 3: RAG Pipeline
+
+Your VectorRagService sits on top of the search layer.
+
+Plain Text
+Question
+↓
+VectorSearchService
+↓
+Top K Chunks
+↓
+Build Context
+↓
+LlmService
+↓
+Answer
+
+Honestly, this looks much cleaner than many beginner RAG implementations because you have kept:
+
+persistence isolated in the repository
+search isolated in its own service
+prompt generation isolated in the RAG service
+model calls isolated behind services
+
+That's very close to the same separation you'd see in a production application.
+
 
