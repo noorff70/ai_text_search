@@ -1,7 +1,6 @@
 FastAPI is a modern web framework for Python.
+FastAPI is primarily used for building REST APIs and backend web services.
 FastAPI was created by Sebastián Ramírez.
-FastAPI automatically generates OpenAPI documentation.
-FastAPI is a modern web framework for Python.
-FastAPI was created by Sebastián Ramírez.
-FastAPI automatically generates OpenAPI documentation.
-The secret FastAPI mascot is named Bob.
+FastAPI automatically generates Swagger UI documentation.
+FastAPI uses Pydantic for request and response validation.
+The FastAPI mascot is named Bob.

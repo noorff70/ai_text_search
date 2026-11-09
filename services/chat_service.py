@@ -101,10 +101,25 @@ ANSWER:
     # This asks vector rag service
     def ask_vector(self, conversation_id: int, question: str):
         
+        self._repository.add_message(
+            conversation_id,
+            "user",
+            question
+        )
+        
         messages = self._repository.get_messages(
             conversation_id
         )
-        return self._vector_rag_service.ask(
-                question= question,
-                conversation_history=messages
+
+        answer = self._vector_rag_service.ask(
+            question=question,
+            conversation_history=messages
         )
+
+        self._repository.add_message(
+            conversation_id,
+            "assistant",
+            answer
+        )
+
+        return answer

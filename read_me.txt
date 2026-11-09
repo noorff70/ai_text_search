@@ -731,3 +731,6 @@ We need to implement like this:
 ⬜ Reranking
 ⬜ Evaluation dataset
 ⬜ Streaming responses
+
+Running the load document:
+python -m tests.vector.test_load_document

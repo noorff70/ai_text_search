@@ -27,8 +27,22 @@ class VectorRagService:
         top_k: int = 5
     ):
 
+        effective_question = question
+
+        if conversation_history:
+            effective_question = self._rewrite_question(
+                    question,
+                    conversation_history
+                )
+        
+
+        print(
+            f"\nRewritten Question: "
+            f"{effective_question}\n"
+        )
+
         search_results = self._search_service.vector_search(
-            query=question,
+            query=effective_question,
             top_k=top_k
         )
 
@@ -36,7 +50,8 @@ class VectorRagService:
         for result in search_results:
             print(
                 f"Score={result.similarity:.4f} | "
-                f"Source={result.chunk.source_document}"
+                f"Source={result.chunk.source_document} | "
+                f"Chunk={result.chunk.chunk_index}"
             )
 
         relevant_results = [
@@ -52,6 +67,10 @@ class VectorRagService:
             result.chunk.content
             for result in relevant_results
         )
+
+        print("\n===== CONTEXT =====")
+        print(context)
+        print("===================\n")
 
         prompt = f"""
 You are a helpful assistant.
@@ -74,3 +93,48 @@ Answer:
         answer = self._llm_service.generate(prompt)
 
         return answer
+
+    # Query rewrite helper
+    def _rewrite_question(
+        self,
+        question: str,
+        conversation_history: list[dict]) -> str:
+
+        if not conversation_history:
+            return question
+
+        history = "\n".join(
+            f"{msg['role']}: {msg['content']}"
+            for msg in conversation_history[-6:]
+        )
+
+        rewrite_prompt = f"""
+    Given the conversation history and the latest user
+    question, rewrite the question so that it is
+    self-contained.
+
+    Conversation:
+    {history}
+
+    Question:
+    {question}
+
+    Return only the rewritten question.
+    Do not provide explanations.
+    Do not answer the question.
+    Do not include labels such as
+    "Rewritten Question:".
+    """
+
+        rewritten_question = (
+            self._llm_service.generate(
+                rewrite_prompt
+            ).strip()
+        )
+
+        print("\n===== QUERY REWRITE =====")
+        print("Original:", question)
+        print("Rewritten:", rewritten_question)
+        print("=========================\n")
+
+        return rewritten_question
