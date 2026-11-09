@@ -105,5 +105,6 @@ ANSWER:
             conversation_id
         )
         return self._vector_rag_service.ask(
-                question
+                question= question,
+                conversation_history=messages
         )
