@@ -99,7 +99,11 @@ ANSWER:
             ]
         )
     # This asks vector rag service
-    def ask_vector(self, question: str):
-            return self._vector_rag_service.ask(
+    def ask_vector(self, conversation_id: int, question: str):
+        
+        messages = self._repository.get_messages(
+            conversation_id
+        )
+        return self._vector_rag_service.ask(
                 question
-            )
+        )

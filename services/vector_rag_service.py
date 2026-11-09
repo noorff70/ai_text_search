@@ -23,6 +23,7 @@ class VectorRagService:
     def ask(
         self,
         question: str,
+        conversation_history: list[dict] | None = None,
         top_k: int = 5
     ):
 

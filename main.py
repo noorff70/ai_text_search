@@ -107,7 +107,7 @@ def chat_with_vector_rag(
     request: ChatRequest,
     service: ChatService = Depends(get_chat_service)
 ):
-    answer = service.ask_vector(request.message)
+    answer = service.ask_vector(request.conversation_id, request.message)
     return {"answer": answer}
 
 

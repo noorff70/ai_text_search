@@ -1,0 +1,6 @@
+refactor(rag): prepare vector rag for conversation awareness
+
+- Added conversation_id to vector rag endpoint
+- Updated ChatService.ask_vector signature
+- Added conversation_history parameter to VectorRagService
+- Prepared pipeline for conversation-aware retrieval
