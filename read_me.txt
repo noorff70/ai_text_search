@@ -33,20 +33,7 @@ http://localhost:8000/docs
 
 
 ==========
-Project Architecture
-FastAPI
-    ↓
-Chat API
-    ↓
-Ollama (Llama 3.2)
-    ↓
-SQLite Conversation Memory
-    ↓
-RAG Knowledge Base
-    ↓
-Web UI
 
-============
 Your FastAPI App
         │
         ▼
@@ -532,4 +519,215 @@ ChatService
     │   └── VectorRepository
     └── LlmService
 
+Here is more explanation:
+Flow 2 = Retrieval Layer (Search Engine)
 
+This part answers:
+
+"Which chunks are relevant to the question?"
+
+Plain Text
+Question
+↓
+EmbeddingService.embed(question)
+↓
+VectorRepository.get_all_chunks()
+↓
+cosine_similarity()
+↓
+Top K Results
+
+The output is:
+
+Python
+[
+Chunk("FastAPI is a modern web framework..."),
+Chunk("Dependency injection allows..."),
+Chunk("ASGI is the interface...")
+]
+
+No LLM is involved yet.
+
+This layer is useful by itself because you can:
+
+Test retrieval quality
+Verify embeddings work correctly
+Debug chunk ranking
+Build document search applications
+Reuse retrieval for multiple AI features
+Flow 3 = Answer Generation Layer (RAG)
+
+This part answers:
+
+"Using the retrieved chunks, generate an answer."
+
+Plain Text
+Question
+↓
+VectorSearchService
+↓
+Top K Chunks
+↓
+Build Context
+↓
+LlmService
+↓
+Answer
+
+The output becomes:
+
+Plain Text
+FastAPI is a modern Python web framework designed
+for building APIs quickly. It is based on ASGI and
+provides automatic validation through Pydantic.
+
+Now the LLM is involved.
+
+Why Not Skip Flow 2?
+
+Because the LLM needs context.
+
+Suppose the user asks:
+
+Plain Text
+What fruit types exist in my database?
+
+Without retrieval:
+
+Plain Text
+Question
+↓
+LlmService
+↓
+Hallucinated answer
+
+The LLM has no idea what's in your SQLite database.
+
+With retrieval:
+
+Plain Text
+Question
+↓
+VectorSearchService
+↓
+Chunks about fruits
+↓
+LlmService
+↓
+Accurate answer
+
+The search layer fetches relevant data; the LLM only summarizes and reasons over it.
+
+Architecture View
+
+A cleaner representation is:
+
+Plain Text
+┌───────────────────┐
+│ VectorRepository │
+└─────────┬─────────┘
+│
+┌─────────▼─────────┐
+│VectorSearchService│
+└─────────┬─────────┘
+│
+Top K Chunks
+│
+┌─────────▼─────────┐
+│ VectorRagService │
+└─────────┬─────────┘
+│
+┌─────────▼─────────┐
+│ LlmService │
+└─────────┬─────────┘
+│
+Answer
+
+So:
+
+VectorSearchService = retrieval only
+VectorRagService = retrieval + answer generation
+LlmService = text generation only
+Why This Separation Is Good Design
+
+Imagine later you want:
+
+Feature 1: Document Search
+Plain Text
+User Question
+↓
+VectorSearchService
+↓
+Show matching chunks
+
+No LLM needed.
+
+Feature 2: Citations
+Plain Text
+User Question
+↓
+VectorSearchService
+↓
+Show top chunks with scores
+
+No LLM needed.
+
+Feature 3: RAG Chat
+Plain Text
+User Question
+↓
+VectorRagService
+↓
+LLM Answer
+
+Uses the same retrieval component.
+
+This follows the Single Responsibility Principle:
+
+VectorSearchService → find relevant chunks
+VectorRagService → orchestrate RAG
+LlmService → talk to Ollama
+
+In your Ollama project specifically, you're at the stage where you're building Flow 2 first because if retrieval isn't working correctly, the RAG layer will produce poor answers regardless of how good the LLM is. The usual progression is:
+
+Plain Text
+
+===============================
+
+Things we want to do now:
+1. Similarity threshold
+2. "No relevant context found" handling
+3. Source citations
+4. Multi-document testing
+5. Chat history aware Vector RAG
+
+What you've accomplished
+
+Your RAG system now has:
+
+✅ Embedding generation
+ ✅ Document chunking
+ ✅ SQLite vector storage
+ ✅ Cosine similarity search
+ ✅ Top-K retrieval
+ ✅ Similarity scoring
+ ✅ Similarity threshold filtering
+ ✅ Hallucination reduction
+ ✅ No-context detection
+ ✅ Retrieval diagnostics
+
+This is already a respectable RAG implementation.
+
+We need to implement like this:
+✅ Ingestion
+✅ Chunking
+✅ Embeddings
+✅ SQLite storage
+✅ Retrieval
+✅ Citation support
+⬜ Prompt templates
+⬜ Conversation memory
+⬜ Hybrid search (BM25 + vectors)
+⬜ Reranking
+⬜ Evaluation dataset
+⬜ Streaming responses

@@ -20,6 +20,7 @@ class UserMessageRequest(BaseModel):
 class DocumentChunk:
     id: int | None
     source_document: str
+    chunk_index: int
     content: str
     embedding: list[float]
 
@@ -27,4 +28,10 @@ class DocumentChunk:
 class SearchResult:
     chunk: DocumentChunk
     similarity: float
+
+@dataclass
+class RagResponse:
+    answer: str
+    sources: list[str]
+    chunk_count: int
 

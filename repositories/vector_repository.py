@@ -10,14 +10,21 @@ class VectorRepository:
 
     def save_chunk(self, chunk: DocumentChunk):
         connection = sqlite3.connect(self.database_path)
+
         connection.execute(
             """
             INSERT INTO document_chunks
-            (source_document, content, embedding)
-            VALUES (?, ?, ?)
+            (
+                source_document,
+                chunk_index,
+                content,
+                embedding
+            )
+            VALUES (?, ?, ?, ?)
             """,
             (
                 chunk.source_document,
+                chunk.chunk_index,
                 chunk.content,
                 json.dumps(chunk.embedding)
             )
@@ -29,10 +36,13 @@ class VectorRepository:
     def get_all_chunks(self):
 
         connection = sqlite3.connect(self.database_path)
+
         rows = connection.execute(
             """
-            SELECT id,
+            SELECT
+                id,
                 source_document,
+                chunk_index,
                 content,
                 embedding
             FROM document_chunks
@@ -40,14 +50,18 @@ class VectorRepository:
         ).fetchall()
 
         connection.close()
+
         chunks = []
+
         for row in rows:
             chunks.append(
                 DocumentChunk(
                     id=row[0],
                     source_document=row[1],
-                    content=row[2],
-                    embedding=json.loads(row[3])
+                    chunk_index=row[2],
+                    content=row[3],
+                    embedding=json.loads(row[4])
                 )
             )
+
         return chunks

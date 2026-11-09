@@ -2,19 +2,27 @@
 
 import sqlite3
 
-conn = sqlite3.connect("data/chatbot.db")
+DATABASE_PATH = "data/chatbot.db"
 
+conn = sqlite3.connect(DATABASE_PATH)
 cursor = conn.cursor()
 
+# Drop existing tables
+cursor.execute("DROP TABLE IF EXISTS message")
+cursor.execute("DROP TABLE IF EXISTS conversation")
+cursor.execute("DROP TABLE IF EXISTS document_chunks")
+
+# Create conversation table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS conversation (
+CREATE TABLE conversation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     created_date DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 """)
 
+# Create message table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS message (
+CREATE TABLE message (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     conversation_id INTEGER,
     role TEXT NOT NULL,
@@ -24,10 +32,12 @@ CREATE TABLE IF NOT EXISTS message (
 )
 """)
 
+# Create document_chunks table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS document_chunks(
+CREATE TABLE document_chunks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_document TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
     content TEXT NOT NULL,
     embedding TEXT NOT NULL
 )
@@ -36,4 +46,4 @@ CREATE TABLE IF NOT EXISTS document_chunks(
 conn.commit()
 conn.close()
 
-print("Database created.")
+print("Database recreated successfully.")

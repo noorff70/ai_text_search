@@ -1,0 +1,7 @@
+feat(rag): add chunk_index metadata for source citations
+
+- Added chunk_index column to document_chunks table
+- Updated DocumentChunk model
+- Updated document ingestion pipeline
+- Updated vector repository persistence
+- Preserved citation metadata through vector search results

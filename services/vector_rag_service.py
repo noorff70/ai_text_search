@@ -6,6 +6,12 @@ from services.llm_service import LlmService
 
 class VectorRagService:
 
+    MIN_SIMILARITY = 0.65
+    NO_CONTEXT_FOUND_MESSAGE = (
+    "I could not find relevant information "
+    "in the knowledge base."
+)
+
     def __init__(
         self,
         search_service: VectorSearchService,
@@ -26,20 +32,34 @@ class VectorRagService:
         )
 
         # TODO: temporarily adding for testing.
-        # for result in search_results:
-        #     print(f"\nScore: {result.similarity:.4f}")
-        #     print(f"Document: "f"{result.chunk.source_document}")
-        #     print(result.chunk.content)
+        for result in search_results:
+            print(
+                f"Score={result.similarity:.4f} | "
+                f"Source={result.chunk.source_document}"
+            )
+
+        relevant_results = [
+            result
+            for result in search_results
+            if result.similarity >= self.MIN_SIMILARITY
+        ]
+
+        if not relevant_results:
+            return self.NO_CONTEXT_FOUND_MESSAGE
 
         context = "\n\n".join(
             result.chunk.content
-            for result in search_results
+            for result in relevant_results
         )
 
         prompt = f"""
 You are a helpful assistant.
 
-Answer the question using only the provided context.
+Use only the provided context to answer the question.
+
+If the answer cannot be found in the context,
+say:
+"I could not find relevant information in the knowledge base."
 
 Context:
 {context}

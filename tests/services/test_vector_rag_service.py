@@ -35,9 +35,23 @@ rag_service = VectorRagService(
 # answer = rag_service.ask(
 #     "Who created FastAPI?"
 # )
+
+# Semantic search
+# answer = rag_service.ask(
+#     "Who developed FastAPI?"
+# )
+
+# answer = rag_service.ask(
+#     "What is the capital of France?"
+# )
+
 answer = rag_service.ask(
-    "What kind of framework is FastAPI and who created it?"
+    "Who created Python?"
 )
+
+# answer = rag_service.ask(
+#     "What kind of framework is FastAPI and who created it?"
+# )
 
 print("\n" + "=" * 80)
 print(answer)
