@@ -2,15 +2,18 @@
 
 from services.vector_search_service import VectorSearchService
 from services.llm_service import LlmService
-
+from prompts.rag_prompts import (
+    RAG_PROMPT,
+    QUERY_REWRITE_PROMPT
+)
 
 class VectorRagService:
 
     MIN_SIMILARITY = 0.65
     NO_CONTEXT_FOUND_MESSAGE = (
-    "I could not find relevant information "
-    "in the knowledge base."
-)
+        "I could not find relevant information "
+        "in the knowledge base."
+    )
 
     def __init__(
         self,
@@ -72,23 +75,10 @@ class VectorRagService:
         print(context)
         print("===================\n")
 
-        prompt = f"""
-You are a helpful assistant.
-
-Use only the provided context to answer the question.
-
-If the answer cannot be found in the context,
-say:
-"I could not find relevant information in the knowledge base."
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
-"""
+        prompt = RAG_PROMPT.format(
+            context=context,
+            question=question
+        )
 
         answer = self._llm_service.generate(prompt)
 
@@ -107,24 +97,11 @@ Answer:
             f"{msg['role']}: {msg['content']}"
             for msg in conversation_history[-6:]
         )
-
-        rewrite_prompt = f"""
-    Given the conversation history and the latest user
-    question, rewrite the question so that it is
-    self-contained.
-
-    Conversation:
-    {history}
-
-    Question:
-    {question}
-
-    Return only the rewritten question.
-    Do not provide explanations.
-    Do not answer the question.
-    Do not include labels such as
-    "Rewritten Question:".
-    """
+        
+        rewrite_prompt = QUERY_REWRITE_PROMPT.format(
+            history=history,
+            question=question
+        )
 
         rewritten_question = (
             self._llm_service.generate(

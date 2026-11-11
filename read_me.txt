@@ -734,3 +734,18 @@ We need to implement like this:
 
 Running the load document:
 python -m tests.vector.test_load_document
+
+git commit -m "feat: complete conversational rag prototype"
+
+git tag v0.3
+
+v0.1 Foundation
+v0.2 Vector Search
+v0.3 Citation Support
+v0.4 Conversational RAG   ✅ (just completed)
+
+v0.5 Prompt Templates
+v0.6 Streaming Responses
+v0.7 Hybrid Search
+v0.8 Reranking
+v1.0 Evaluated Production-Ready RAG
