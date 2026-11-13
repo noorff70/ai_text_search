@@ -19,3 +19,20 @@ class LlmService:
         )
 
         return response["message"]["content"]
+
+
+    def stream(self, prompt: str):
+
+        stream = ollama.chat(
+            model=self._model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            stream=True
+        )
+
+        for chunk in stream:
+            yield chunk["message"]["content"]

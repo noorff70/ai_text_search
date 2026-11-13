@@ -749,3 +749,47 @@ v0.6 Streaming Responses
 v0.7 Hybrid Search
 v0.8 Reranking
 v1.0 Evaluated Production-Ready RAG
+
+=============
+If I were coaching this project, tomorrow's learning goal would be:
+
+Understand Python generators and build a complete end-to-end streaming RAG response path using Ollama + FastAPI.
+
+That's a very achievable next milestone and a good stopping point before moving into the more advanced retrieval topics. 🚀
+
+==============================
+Added streaming and the test becomes:
+curl -N -X POST http://localhost:8000/chat/vector/stream -H "Content-Type: application/json" -d "{\"conversation_id\":1,\"message\":\"What is FastAPI?\"}"
+
+This puts it in one line
+
+This is what we have achieved:
+/chat/vector/stream
+        ↓
+FastAPI StreamingResponse
+        ↓
+ChatService.stream_vector()
+        ↓
+VectorRagService.stream()
+        ↓
+LlmService.stream()
+        ↓
+ollama.chat(stream=True)
+
+and the full implemented flow:
+
+Question
+ ↓
+Query Rewrite
+ ↓
+Vector Search
+ ↓
+Similarity Ranking
+ ↓
+Context Building
+ ↓
+Prompt Construction
+ ↓
+Streaming LLM
+ ↓
+Streaming FastAPI Response

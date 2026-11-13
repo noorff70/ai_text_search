@@ -123,3 +123,33 @@ ANSWER:
         )
 
         return answer
+
+    def stream_vector(
+        self,
+        conversation_id: int,
+        question: str
+    ):
+        self._repository.add_message(
+            conversation_id,
+            "user",
+            question
+        )
+
+        messages = self._repository.get_messages(
+            conversation_id
+        )
+
+        full_answer = ""
+
+        for chunk in self._vector_rag_service.stream(
+            question=question,
+            conversation_history=messages
+        ):
+            full_answer += chunk
+            yield chunk
+
+        self._repository.add_message(
+            conversation_id,
+            "assistant",
+            full_answer
+        )

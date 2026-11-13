@@ -29,9 +29,6 @@ def get_vector_repository():
 def get_ollama_service():
     return OllamaService("llama3.2")
 
-def get_embedding_service():
-    return EmbeddingService("nomic-embed-text")
-
 def get_document_repository():
     return DocumentRepository()
 
@@ -85,6 +82,20 @@ def get_chat_service(repository : ConversationRepository = Depends(get_repositor
         ollama_service = ollama_service,
         rag_service = rag_service,
         vector_rag_service = vector_rag_service
+    )
+
+# Test streaming with vector rag
+@app.post("/chat/vector/stream")
+def stream_vector_chat(
+    request: ChatRequest,
+    service: ChatService = Depends(get_chat_service)
+):
+    return StreamingResponse(
+        service.stream_vector(
+            request.conversation_id,
+            request.message
+        ),
+        media_type="text/event-stream"
     )
 
 @app.post ("/chat_with_ollama_directly", response_model=ChatResponse)
